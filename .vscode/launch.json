@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Fast API Server",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/run.py",
+      "envFile": "${workspaceFolder}/app/config/.env",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Run migrate",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "app.db.migrate",
+      "justMyCode": true
+    }
+  ]
+}
