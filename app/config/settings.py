@@ -15,6 +15,7 @@ class Settings:
     SMTP_PORT: int = os.getenv("SMTP_PORT")
     FROM_EMAIL: str = os.getenv("FROM_EMAIL")
     FROM_EMAIL_NAME: str = os.getenv("FROM_EMAIL_NAME")
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "default_secret_key")
 
     @property
     def DB_URL(self) -> str:

@@ -12,6 +12,7 @@ from app.schemas.users import (
     CompanySchema,
     GuestIdSchema,
     GuestSchema,
+    GuestUpdateSchema,
     UserSchema
 )
 from app.utils.pagination import paginate, PaginatedResponse
@@ -61,7 +62,7 @@ def create_companies(
 @router.get("/", response_model=PaginatedResponse[UserSchema])
 def get_users(
     email: Optional[str] = Query(None, description="Buscar por email"),
-    name: Optional[int] = Query(None, description="Buscar por nombre"),
+    name: Optional[str] = Query(None, description="Buscar por nombre"),
     offset: int = Query(0, ge=0),
     limit: int = Query(10, le=100),
     db: Session = Depends(get_db),
@@ -119,6 +120,8 @@ def create_guests(payload: BulkGuestSchema, db: Session = Depends(get_db)):
             existing.arl_id = guest_data.arl_id
             existing.company_id = guest_data.company_id
             existing.city_id = guest_data.city_id
+            existing.phone_number = guest_data.phone_number
+            existing.email = guest_data.email
             updated_ids.append(existing.id)
         else:
             # Crear nuevos invitados
@@ -128,7 +131,9 @@ def create_guests(payload: BulkGuestSchema, db: Session = Depends(get_db)):
                 eps_id=guest_data.eps_id,
                 arl_id=guest_data.arl_id,
                 company_id=guest_data.company_id,
-                city_id=guest_data.city_id
+                city_id=guest_data.city_id,
+                phone_number=guest_data.phone_number,
+                email=guest_data.email
             )
             db.add(new_guest)
             db.flush()
@@ -136,5 +141,20 @@ def create_guests(payload: BulkGuestSchema, db: Session = Depends(get_db)):
     db.commit()
     return {
         "inserted_ids": inserted_ids,
-        "updated_ids": updated_ids
+        "updated_ids": updated_ids,
+        "guests_ids": inserted_ids + updated_ids
     }
+
+
+@router.put("/guests/{guest_id}", response_model=GuestSchema)
+def update_guest(guest_id: int, data: GuestUpdateSchema, db: Session = Depends(get_db)):
+    guest = db.query(Guest).filter(Guest.id == guest_id).first()
+    if not guest:
+        raise HTTPException(status_code=404, detail="Guest not found")
+
+    for field, value in data.dict(exclude_unset=True).items():
+        setattr(guest, field, value)
+
+    db.commit()
+    db.refresh(guest)
+    return guest

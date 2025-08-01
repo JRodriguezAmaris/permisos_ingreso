@@ -8,10 +8,30 @@ from app.schemas.branches import BranchSchema
 from app.schemas.users import GuestCreateSchema, GuestSchema, UserSchema
 
 
+class MaterialCreateSchema(BaseModel):
+    """Esquema para agregar los materiales de la solicitud de ingreso."""
+    model: str
+    serial: str | None = None
+    description: str | None = None
+    quantity: int = 1
+
+    class Config:
+        from_attributes = True
+
+
+class MaterialSchema(MaterialCreateSchema):
+    """Esquema para representar los materiales de la solicitud de ingreso."""
+    id: int
+    entrance_request_id: int
+
+    class Config:
+        from_attributes = True
+
+
 class EntranceRequestCreateSchema(BaseModel):
     """Esquema para crear una solicitud de ingreso."""
     branch_id: int
-    guests: List[GuestCreateSchema]
+    guests_ids: List[int]
     entry_date: datetime
     departure_date: datetime
     reason : str
@@ -19,6 +39,7 @@ class EntranceRequestCreateSchema(BaseModel):
     creator_id: int
     authorizer_id: int
     security_id: int | None = None
+    materials: Optional[List[MaterialCreateSchema]] = []
 
     @field_validator("departure_date")
     def max_days_validation(cls, departure_date, values):
@@ -31,14 +52,15 @@ class EntranceRequestCreateSchema(BaseModel):
 
 class EntranceRequestUpdateSchema(BaseModel):
     """Esquema para crear una solicitud de ingreso."""
-    branch_id: Optional[int]
-    entry_date: Optional[datetime]
-    departure_date: Optional[datetime]
-    reason: Optional[str]
-    status: Optional[RequestStatus]
-    authorizer_id: Optional[int]
-    security_id: Optional[int]
-    guests: Optional[List[int]]
+    branch_id: Optional[int] = None
+    entry_date: Optional[datetime] = None
+    departure_date: Optional[datetime] = None
+    reason: Optional[str] = None
+    status: Optional[RequestStatus] = None
+    authorizer_id: Optional[int] = None
+    security_id: Optional[int] = None
+    guests_ids: Optional[List[int]] = None
+    materials: Optional[List[MaterialCreateSchema]] = []
 
     class Config:
         orm_mode = True
@@ -49,6 +71,7 @@ class EntranceRequestSchema(BaseModel):
     id: int
     branch: BranchSchema
     guests: List[GuestSchema] = Field(..., alias="guest_list")
+    materials: List[MaterialSchema] = Field(..., alias="materials")
     entry_date: datetime
     departure_date: datetime
     reason : str

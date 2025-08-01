@@ -25,14 +25,14 @@ class Guest(Base):
     eps_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
     arl_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
-    city_id = Column(Integer, ForeignKey("cities.id"), nullable=False)
+    city_id = Column(Integer, ForeignKey("municipalities.id"), nullable=False)
     phone_number = Column(String, nullable=False, index=True)
     email = Column(String, nullable=False, index=True)
 
     eps  = relationship("Company", foreign_keys=[eps_id], backref="eps_guests")
     arl  = relationship("Company", foreign_keys=[arl_id], backref="arl_guests")
     company = relationship("Company", foreign_keys=[company_id], backref="company_guests")
-    city = relationship("City", backref="guests")
+    city = relationship("Municipality", backref="guests")
 
     __table_args__ = (
         CheckConstraint("email LIKE '%@%.%'", name='check_email_format'),

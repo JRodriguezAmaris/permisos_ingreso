@@ -1,3 +1,4 @@
+"""Modulo de envio de emails."""
 import os
 import smtplib
 import logging

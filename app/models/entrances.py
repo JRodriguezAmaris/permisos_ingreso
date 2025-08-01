@@ -7,7 +7,7 @@ from app.db.database import Base
 
 class RequestStatus(str, Enum_py):
     """Representa los tipos de estados de una solicitud."""
-    approved = "Autorizado"
+    authorized = "Autorizado"
     refused = "Rechazado"
     auth_pending = "Pendiente por autorizador"
     security_pending = "Pendiente por seguridad"
@@ -51,3 +51,17 @@ class EntranceRequestGuest(Base):
 
     entrance_request = relationship("EntranceRequest", backref="guests")
     guest = relationship("Guest", backref="entrance_requests")
+
+
+class Material(Base):
+    """Modelo materiales de ingreso."""
+    __tablename__ = "entrance_materials"
+
+    id = Column(Integer, primary_key=True, index=True)
+    entrance_request_id = Column(Integer, ForeignKey("entrance_requests.id"), nullable=False)
+    model = Column(String, nullable=False)
+    serial = Column(String, nullable=True, index=True)
+    description = Column(String, nullable=True)
+    quantity = Column(Integer, nullable=False, default=1)
+
+    entrance_request = relationship("EntranceRequest", backref="materials")

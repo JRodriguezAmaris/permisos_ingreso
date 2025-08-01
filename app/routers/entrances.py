@@ -5,22 +5,21 @@ from fastapi.params import Body, Query
 from sqlalchemy.orm import Session, selectinload
 
 from app.db.database import get_db
-from app.models.entrances import EntranceRequest, EntranceRequestGuest, RequestStatus
+from app.models.entrances import Material, EntranceRequest, EntranceRequestGuest, RequestStatus
 from app.models.branches import Branch
 from app.models.users import Guest, User
 from app.schemas.entrances import (
     EntranceRequestCreateSchema,
     EntranceRequestUpdateSchema,
-    EntranceRequestSchema
+    EntranceRequestSchema,
+    MaterialSchema
 )
 from app.utils.email import send_email_with_attachments
-from app.utils.pagination import (
-    PaginatedModelResponse as PaginatedResponse,
-    paginate_model as paginate
-)
+from app.utils.pagination import PaginatedResponse, paginate
 from app.scripts.create_format import export_entrance_requests_to_excel
 
 router = APIRouter()
+
 
 @router.post("/requests", response_model=EntranceRequestSchema, status_code=201)
 def create_entrance_request(
@@ -33,24 +32,29 @@ def create_entrance_request(
     if not branch:
         raise HTTPException(status_code=404, detail="Sede no encontrada")
     # Crea la solicitud de ingreso
-    entrance_data = data.model_dump(exclude={"guests"})
+    entrance_data = data.model_dump(exclude={"guests_ids", "materials"})
     entrance_request = EntranceRequest(**entrance_data)
     db.add(entrance_request)
     db.flush()
     # Procesa los invitados
-    for guest_data in data.guests:
-        # Crear o recuperar el invitado
-        guest = db.query(Guest).filter(Guest.document_id == guest_data.document_id).first()
+    for guest_id in data.guests_ids:
+        # # Crear o recuperar el invitado
+        guest = db.query(Guest).filter(Guest.id == guest_id).first()
         if not guest:
-            guest = Guest(**guest_data.model_dump())
-            db.add(guest)
-            db.flush()
+            continue
         # Relación con la solicitud
         link = EntranceRequestGuest(
             entrance_request_id=entrance_request.id,
-            guest_id=guest.id,
+            guest_id=guest_id,
         )
         db.add(link)
+    # Procesa los equipos o materiales
+    for material_data in data.materials:
+        material = Material(
+            entrance_request_id=entrance_request.id,
+            **material_data.model_dump()
+        )
+        db.add(material)
     db.commit()
 
     entrance_request = (
@@ -61,12 +65,14 @@ def create_entrance_request(
             selectinload(EntranceRequest.creator),
             selectinload(EntranceRequest.authorizer),
             selectinload(EntranceRequest.security),
+            selectinload(EntranceRequest.materials),
             
         )
         .filter(EntranceRequest.id == entrance_request.id)
         .first()
     )
     return EntranceRequestSchema(
+        id=entrance_request.id,
         branch=entrance_request.branch,
         guest_list=[guest.guest for guest in entrance_request.guests],
         entry_date=entrance_request.entry_date,
@@ -76,6 +82,7 @@ def create_entrance_request(
         creator=entrance_request.creator,
         authorizer=entrance_request.authorizer,
         security=entrance_request.security,
+        materials=[material for material in entrance_request.materials]
     )
 
 
@@ -101,6 +108,7 @@ def get_entrance_request(
         raise HTTPException(status_code=404, detail="Solicitud de ingreso no encontrada")
     
     return EntranceRequestSchema(
+        id=entrance_request.id,
         branch=entrance_request.branch,
         guest_list=[guest.guest for guest in entrance_request.guests],
         entry_date=entrance_request.entry_date,
@@ -110,6 +118,7 @@ def get_entrance_request(
         creator=entrance_request.creator,
         authorizer=entrance_request.authorizer,
         security=entrance_request.security,
+        materials=[material for material in entrance_request.materials]
     )
 
 
@@ -140,6 +149,7 @@ def get_entrance_requests(
             selectinload(EntranceRequest.creator),
             selectinload(EntranceRequest.authorizer),
             selectinload(EntranceRequest.security),
+            selectinload(EntranceRequest.materials),
         ).order_by(EntranceRequest.entry_date.desc())
     )
     return paginate(query, EntranceRequestSchema, offset=offset, limit=limit)
@@ -180,15 +190,15 @@ def update_entrance_request(
 
     # Actualizar campos en el modelo
     for field, value in update_data.items():
-        if field != "guests":
+        if field != "guests_ids":
             setattr(entrance_request, field, value)
 
     # Actualizar invitados si vienen
-    if "guests" in update_data:
+    if "guests_ids" in update_data:
         db.query(EntranceRequestGuest).filter(
             EntranceRequestGuest.entrance_request_id == request_id
         ).delete()
-        for guest_id in update_data["guests"]:
+        for guest_id in update_data["guests_ids"]:
             guest = db.query(Guest).filter(Guest.id == guest_id).first()
             if not guest:
                 raise HTTPException(status_code=404, detail=f"Invitado con ID {guest_id} no encontrado")
@@ -196,7 +206,7 @@ def update_entrance_request(
 
     db.commit()
 
-    if update_data.get('status') == RequestStatus.approved:
+    if update_data.get('status') == RequestStatus.authorized:
         export_entrance_requests_to_excel(
             db, request_id, "format_templates/PERMISO MOVISTAR.xlsx", f"output_{request_id}.xlsx"
         )
@@ -213,6 +223,7 @@ def update_entrance_request(
             selectinload(EntranceRequest.creator),
             selectinload(EntranceRequest.authorizer),
             selectinload(EntranceRequest.security),
+            selectinload(EntranceRequest.materials),
         )
         .filter(EntranceRequest.id == request_id)
         .first()
@@ -225,7 +236,9 @@ def update_entrance_request(
         entry_date=entrance_request.entry_date,
         departure_date=entrance_request.departure_date,
         reason=entrance_request.reason,
+        creator=entrance_request.creator,
         status=entrance_request.status,
         authorizer=entrance_request.authorizer,
         security=entrance_request.security,
+        materials=[material for material in entrance_request.materials]
     )
