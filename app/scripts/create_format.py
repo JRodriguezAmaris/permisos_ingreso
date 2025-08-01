@@ -28,7 +28,7 @@ def copy_row(ws, source_row, target_row):
             target_cell.alignment = copy(source_cell.alignment)
     # Copiar altura de fila
     ws.row_dimensions[target_row].height = ws.row_dimensions[source_row].height
-    
+
     # Copiar celdas combinadas
     for merged_cell_range in ws.merged_cells.ranges:
         min_col, min_row, max_col, max_row = range_boundaries(str(merged_cell_range))
@@ -98,12 +98,14 @@ def export_entrance_requests_to_excel(
     else:
         ws.cell(row=5, column=9).value = "x"
         ws.cell(row=6, column=9).value = ""
+    ws.cell(row=5, column=11).value = "x" if entrance_request.is_installation else ""
+    ws.cell(row=6, column=11).value = "x" if entrance_request.is_uninstallation else ""
     ws.cell(row=6, column=12).value = entrance_request.entry_date.strftime("%d/%m/%Y")
     ws.cell(row=6, column=15).value = entrance_request.departure_date.strftime("%d/%m/%Y")
-    
+
     # Descripcion de las actividades
     ws.cell(row=9, column=2).value = entrance_request.reason.upper()
-    
+
     # Solicitante, autorizador y seguridad
     ws.cell(row=28, column=3).value = entrance_request.creator.name
     ws.cell(row=28, column=8).value = entrance_request.authorizer.name

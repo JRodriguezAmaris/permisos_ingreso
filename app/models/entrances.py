@@ -1,6 +1,15 @@
 """Modelos de solicitud de ingreso."""
 from enum import Enum as Enum_py
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum, CheckConstraint
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Column,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    String
+)
 from sqlalchemy.orm import relationship
 from app.db.database import Base
 
@@ -26,6 +35,8 @@ class EntranceRequest(Base):
     creator_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     authorizer_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     security_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    is_installation = Column(Boolean, default=False)
+    is_uninstallation = Column(Boolean, default=False)
 
     branch = relationship("Branch", backref="entrance_requests")
     creator = relationship("User", foreign_keys=[creator_id], backref="creator_requests")

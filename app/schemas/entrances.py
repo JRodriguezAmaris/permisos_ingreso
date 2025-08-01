@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from app.models.entrances import RequestStatus
 from app.schemas.branches import BranchSchema
-from app.schemas.users import GuestCreateSchema, GuestSchema, UserSchema
+from app.schemas.users import GuestSchema, UserSchema
 
 
 class MaterialCreateSchema(BaseModel):
@@ -36,6 +36,8 @@ class EntranceRequestCreateSchema(BaseModel):
     departure_date: datetime
     reason : str
     status : RequestStatus = RequestStatus.auth_pending
+    is_installation : bool = False
+    is_uninstallation : bool = False
     creator_id: int
     authorizer_id: int
     security_id: int | None = None
@@ -57,32 +59,35 @@ class EntranceRequestUpdateSchema(BaseModel):
     departure_date: Optional[datetime] = None
     reason: Optional[str] = None
     status: Optional[RequestStatus] = None
+    is_installation : bool = False
+    is_uninstallation : bool = False
     authorizer_id: Optional[int] = None
     security_id: Optional[int] = None
     guests_ids: Optional[List[int]] = None
     materials: Optional[List[MaterialCreateSchema]] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class EntranceRequestSchema(BaseModel):
     """Esquema para representar una solicitud de ingreso."""
     id: int
     branch: BranchSchema
-    guests: List[GuestSchema] = Field(..., alias="guest_list")
+    guests: List[GuestSchema] = Field(..., alias="guests")
     materials: List[MaterialSchema] = Field(..., alias="materials")
     entry_date: datetime
     departure_date: datetime
     reason : str
     status : RequestStatus
+    is_installation : bool
+    is_uninstallation : bool
     creator: UserSchema | None = None
     authorizer: UserSchema | None = None
     security: UserSchema | None = None
 
     class Config:
         from_attributes = True
-        orm_mode = True
 
     @property
     def guest_list(self):

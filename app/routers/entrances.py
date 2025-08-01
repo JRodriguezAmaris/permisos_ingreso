@@ -66,7 +66,6 @@ def create_entrance_request(
             selectinload(EntranceRequest.authorizer),
             selectinload(EntranceRequest.security),
             selectinload(EntranceRequest.materials),
-            
         )
         .filter(EntranceRequest.id == entrance_request.id)
         .first()
@@ -74,11 +73,13 @@ def create_entrance_request(
     return EntranceRequestSchema(
         id=entrance_request.id,
         branch=entrance_request.branch,
-        guest_list=[guest.guest for guest in entrance_request.guests],
+        guests=[guest.guest for guest in entrance_request.guests],
         entry_date=entrance_request.entry_date,
         departure_date=entrance_request.departure_date,
         reason=entrance_request.reason,
         status=entrance_request.status,
+        is_installation=entrance_request.is_installation,
+        is_uninstallation=entrance_request.is_uninstallation,
         creator=entrance_request.creator,
         authorizer=entrance_request.authorizer,
         security=entrance_request.security,
@@ -110,11 +111,13 @@ def get_entrance_request(
     return EntranceRequestSchema(
         id=entrance_request.id,
         branch=entrance_request.branch,
-        guest_list=[guest.guest for guest in entrance_request.guests],
+        guests=[guest.guest for guest in entrance_request.guests],
         entry_date=entrance_request.entry_date,
         departure_date=entrance_request.departure_date,
         reason=entrance_request.reason,
         status=entrance_request.status,
+        is_installation=entrance_request.is_installation,
+        is_uninstallation=entrance_request.is_uninstallation,
         creator=entrance_request.creator,
         authorizer=entrance_request.authorizer,
         security=entrance_request.security,
@@ -232,12 +235,14 @@ def update_entrance_request(
     return EntranceRequestSchema(
         id=entrance_request.id,
         branch=entrance_request.branch,
-        guest_list=[guest.guest for guest in entrance_request.guests],
+        guests=[guest.guest for guest in entrance_request.guests],
         entry_date=entrance_request.entry_date,
         departure_date=entrance_request.departure_date,
         reason=entrance_request.reason,
         creator=entrance_request.creator,
         status=entrance_request.status,
+        is_installation=entrance_request.is_installation,
+        is_uninstallation=entrance_request.is_uninstallation,
         authorizer=entrance_request.authorizer,
         security=entrance_request.security,
         materials=[material for material in entrance_request.materials]
