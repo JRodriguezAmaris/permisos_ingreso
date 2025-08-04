@@ -18,3 +18,4 @@ test.db
 .pytest_cache/
 
 migrate_data.py
+.env
