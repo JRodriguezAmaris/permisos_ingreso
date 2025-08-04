@@ -29,8 +29,8 @@ class Guest(Base):
     phone_number = Column(String, nullable=False, index=True)
     email = Column(String, nullable=False, index=True)
 
-    eps  = relationship("Company", foreign_keys=[eps_id], backref="eps_guests")
-    arl  = relationship("Company", foreign_keys=[arl_id], backref="arl_guests")
+    eps = relationship("Company", foreign_keys=[eps_id], backref="eps_guests")
+    arl = relationship("Company", foreign_keys=[arl_id], backref="arl_guests")
     company = relationship("Company", foreign_keys=[company_id], backref="company_guests")
     city = relationship("Municipality", backref="guests")
 
@@ -70,8 +70,8 @@ class User(Base):
     phone_number = Column(String, nullable=False, index=True)
     email = Column(String, nullable=False, index=True)
 
-    unit  = relationship("Unit", backref="users")
-    position  = relationship("Position", backref="users")
+    unit = relationship("Unit", backref="users")
+    position = relationship("Position", backref="users")
     __table_args__ = (
         CheckConstraint("email LIKE '%@%.%'", name='check_email_format'),
         CheckConstraint(

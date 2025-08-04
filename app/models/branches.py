@@ -24,6 +24,6 @@ class Branch(Base):
     department_id = Column(Integer, ForeignKey("departments.id"), nullable=False)
     municipality_id = Column(Integer, ForeignKey("municipalities.id"), nullable=False)
     is_j10 = Column(Boolean, default=False)
-    
+
     department = relationship("Department", backref="branches")
     municipality = relationship("Municipality", backref="branches")

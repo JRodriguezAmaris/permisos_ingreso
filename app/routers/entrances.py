@@ -11,8 +11,7 @@ from app.models.users import Guest, User
 from app.schemas.entrances import (
     EntranceRequestCreateSchema,
     EntranceRequestUpdateSchema,
-    EntranceRequestSchema,
-    MaterialSchema
+    EntranceRequestSchema
 )
 from app.utils.email import send_email_with_attachments
 from app.utils.pagination import PaginatedResponse, paginate
@@ -107,7 +106,7 @@ def get_entrance_request(
     )
     if not entrance_request:
         raise HTTPException(status_code=404, detail="Solicitud de ingreso no encontrada")
-    
+
     return EntranceRequestSchema(
         id=entrance_request.id,
         branch=entrance_request.branch,
@@ -172,7 +171,7 @@ def update_entrance_request(
 
     # Actualizar campos si vienen en el body
     update_data = data.model_dump(exclude_unset=True)
-    
+
     # Validar branch si se actualiza
     if "branch_id" in update_data:
         branch = db.query(Branch).filter(Branch.id == update_data["branch_id"]).first()
@@ -204,7 +203,10 @@ def update_entrance_request(
         for guest_id in update_data["guests_ids"]:
             guest = db.query(Guest).filter(Guest.id == guest_id).first()
             if not guest:
-                raise HTTPException(status_code=404, detail=f"Invitado con ID {guest_id} no encontrado")
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Invitado con ID {guest_id} no encontrado"
+                )
             db.add(EntranceRequestGuest(entrance_request_id=request_id, guest_id=guest_id))
 
     db.commit()

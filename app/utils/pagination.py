@@ -16,7 +16,12 @@ class PaginatedResponse(BaseModel, Generic[T]):
     limit: int
 
 
-def paginate(query: Query, model: Type[T], offset: int = settings.PAGE_OFFSET, limit: int = settings.PAGE_OFFSET) -> PaginatedResponse[T]:
+def paginate(
+    query: Query,
+    model: Type[T],
+    offset: int = settings.PAGE_OFFSET,
+    limit: int = settings.PAGE_OFFSET
+) -> PaginatedResponse[T]:
     """Genera una respuesta paginada y hace la paginación a nivel de query."""
     total = query.count()
     items = query.offset(offset).limit(limit).all()

@@ -34,17 +34,17 @@ class EntranceRequestCreateSchema(BaseModel):
     guests_ids: List[int]
     entry_date: datetime
     departure_date: datetime
-    reason : str
-    status : RequestStatus = RequestStatus.auth_pending
-    is_installation : bool = False
-    is_uninstallation : bool = False
+    reason: str
+    status: RequestStatus = RequestStatus.auth_pending
+    is_installation: bool = False
+    is_uninstallation: bool = False
     creator_id: int
     authorizer_id: int
     security_id: int | None = None
     materials: Optional[List[MaterialCreateSchema]] = []
 
     @field_validator("departure_date")
-    def max_days_validation(cls, departure_date, values):
+    def max_days_validation(self, departure_date, values):
         """Valida que la fecha de salida no sea mayor a 30 días desde la fecha de ingreso."""
         entry_date = values.data.get("entry_date")
         if entry_date and (departure_date - entry_date).days > 30:
@@ -59,8 +59,8 @@ class EntranceRequestUpdateSchema(BaseModel):
     departure_date: Optional[datetime] = None
     reason: Optional[str] = None
     status: Optional[RequestStatus] = None
-    is_installation : bool = False
-    is_uninstallation : bool = False
+    is_installation: bool = False
+    is_uninstallation: bool = False
     authorizer_id: Optional[int] = None
     security_id: Optional[int] = None
     guests_ids: Optional[List[int]] = None
@@ -78,10 +78,10 @@ class EntranceRequestSchema(BaseModel):
     materials: List[MaterialSchema] = Field(..., alias="materials")
     entry_date: datetime
     departure_date: datetime
-    reason : str
-    status : RequestStatus
-    is_installation : bool
-    is_uninstallation : bool
+    reason: str
+    status: RequestStatus
+    is_installation: bool
+    is_uninstallation: bool
     creator: UserSchema | None = None
     authorizer: UserSchema | None = None
     security: UserSchema | None = None

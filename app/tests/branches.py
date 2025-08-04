@@ -1,7 +1,6 @@
 """Tests unitarios para el endpoint de sucursales."""
 import pytest
 from fastapi.testclient import TestClient
-import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -62,9 +61,30 @@ def setup_data():
     # Branches
     db.query(Branch).delete()
     branches = [
-        Branch(code="s1234", name="Sede Administrativa", address="Calle 123", type=BranchTypes.administrative, department_id=1, municipality_id=1),
-        Branch(code="s1235", name="Sede Tecnica", address="Carrera 46", type=BranchTypes.technical, department_id=1, municipality_id=1),
-        Branch(code="s1236", name="Sede Tecnica Externa", address="Diagonal 9", type=BranchTypes.external, department_id=1, municipality_id=1),
+        Branch(
+            code="s1234",
+            name="Sede Administrativa",
+            address="Calle 123",
+            type=BranchTypes.administrative,
+            department_id=1,
+            municipality_id=1
+        ),
+        Branch(
+            code="s1235",
+            name="Sede Tecnica",
+            address="Carrera 46",
+            type=BranchTypes.technical,
+            department_id=1,
+            municipality_id=1
+        ),
+        Branch(
+            code="s1236",
+            name="Sede Tecnica Externa",
+            address="Diagonal 9",
+            type=BranchTypes.external,
+            department_id=1,
+            municipality_id=1
+        ),
     ]
     db.add_all(branches)
     db.commit()

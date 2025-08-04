@@ -39,6 +39,7 @@ def copy_row(ws, source_row, target_row):
             )
             ws.merge_cells(new_range)
 
+
 def export_entrance_requests_to_excel(
         db: Session, request_id: int, template_path: str, output_path: str):
     """Genera formato de ingreso a partir de una plantilla de Excel."""
@@ -50,30 +51,36 @@ def export_entrance_requests_to_excel(
             selectinload(EntranceRequest.branch),
             selectinload(EntranceRequest.branch).selectinload(Branch.municipality),
             selectinload(EntranceRequest.guests).selectinload(EntranceRequestGuest.guest),
-            selectinload(EntranceRequest.guests)
-                .selectinload(EntranceRequestGuest.guest)
-                .selectinload(Guest.eps),
-            selectinload(EntranceRequest.guests)
-                .selectinload(EntranceRequestGuest.guest)
-                .selectinload(Guest.arl),
-            selectinload(EntranceRequest.guests)
-                .selectinload(EntranceRequestGuest.guest)
-                .selectinload(Guest.company),
+            selectinload(
+                EntranceRequest.guests
+            ).selectinload(EntranceRequestGuest.guest).selectinload(Guest.eps),
+            selectinload(
+                EntranceRequest.guests
+            ).selectinload(EntranceRequestGuest.guest).selectinload(Guest.arl),
+            selectinload(
+                EntranceRequest.guests
+            ).selectinload(EntranceRequestGuest.guest).selectinload(Guest.company),
             selectinload(EntranceRequest.authorizer),
-            selectinload(EntranceRequest.authorizer)
-                .selectinload(User.unit),
-            selectinload(EntranceRequest.authorizer)
-                .selectinload(User.position),
+            selectinload(
+                EntranceRequest.authorizer
+            ).selectinload(User.unit),
+            selectinload(
+                EntranceRequest.authorizer
+            ).selectinload(User.position),
             selectinload(EntranceRequest.creator),
-            selectinload(EntranceRequest.creator)
-                .selectinload(User.unit),
-            selectinload(EntranceRequest.creator)
-                .selectinload(User.position),
+            selectinload(
+                EntranceRequest.creator
+            ).selectinload(User.unit),
+            selectinload(
+                EntranceRequest.creator
+            ).selectinload(User.position),
             selectinload(EntranceRequest.security),
-            selectinload(EntranceRequest.security)
-                .selectinload(User.unit),
-            selectinload(EntranceRequest.security)
-                .selectinload(User.position),
+            selectinload(
+                EntranceRequest.security
+            ).selectinload(User.unit),
+            selectinload(
+                EntranceRequest.security
+            ).selectinload(User.position),
             selectinload(EntranceRequest.materials),
         )
         .first()

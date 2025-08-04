@@ -1,7 +1,6 @@
 """Rutas para manejar los usuarios de la aplicación."""
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
 from typing import Optional
 
 from app.db.database import get_db

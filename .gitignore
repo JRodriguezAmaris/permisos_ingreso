@@ -8,3 +8,13 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Database files
+*.db
+*.sqlite3
+test.db
+
+# Test Cache
+.pytest_cache/
+
+migrate_data.py
